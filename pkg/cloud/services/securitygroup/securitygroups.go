@@ -57,7 +57,7 @@ const (
 )
 
 // ReconcileSecurityGroups will reconcile security groups against the Service object.
-func (s *Service) ReconcileSecurityGroups() error {
+func (s *Service) ReconcileSecurityGroups(ctx context.Context) error {
 	s.scope.Debug("Reconciling security groups")
 
 	if s.scope.Network().SecurityGroups == nil {
@@ -305,7 +305,7 @@ func (s *Service) ec2SecurityGroupToSecurityGroup(ec2SecurityGroup types.Securit
 }
 
 // DeleteSecurityGroups will delete a service's security groups.
-func (s *Service) DeleteSecurityGroups() error {
+func (s *Service) DeleteSecurityGroups(ctx context.Context) error {
 	if s.scope.VPC().ID == "" {
 		s.scope.Debug("Skipping security group deletion, vpc-id is nil", "vpc-id", s.scope.VPC().ID)
 		v1beta1conditions.MarkFalse(s.scope.InfraCluster(), infrav1.ClusterSecurityGroupsReadyCondition, clusterv1beta1.DeletedReason, clusterv1beta1.ConditionSeverityInfo, "")

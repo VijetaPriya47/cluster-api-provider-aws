@@ -1156,7 +1156,7 @@ func TestReconcileSecurityGroups(t *testing.T) {
 			s := NewService(cs, testSecurityGroupRoles)
 			s.EC2Client = ec2Mock
 
-			if err := s.ReconcileSecurityGroups(); err != nil && tc.err != nil {
+			if err := s.ReconcileSecurityGroups(context.TODO()); err != nil && tc.err != nil {
 				if !strings.Contains(err.Error(), tc.err.Error()) {
 					t.Fatalf("was expecting error to look like '%v', but got '%v'", tc.err, err)
 				}
@@ -2069,7 +2069,7 @@ func TestDeleteSecurityGroups(t *testing.T) {
 			s := NewService(cs, testSecurityGroupRoles)
 			s.EC2Client = ec2Mock
 
-			err = s.DeleteSecurityGroups()
+			err = s.DeleteSecurityGroups(context.TODO())
 			if tc.wantErr {
 				g.Expect(err).To(HaveOccurred())
 				return

@@ -46,7 +46,7 @@ var (
 )
 
 // ReconcileBastion ensures a bastion is created for the cluster.
-func (s *Service) ReconcileBastion() error {
+func (s *Service) ReconcileBastion(ctx context.Context) error {
 	if !s.scope.Bastion().Enabled {
 		s.scope.Trace("Skipping bastion reconcile")
 		_, err := s.describeBastionInstance()
@@ -56,7 +56,7 @@ func (s *Service) ReconcileBastion() error {
 			}
 			return err
 		}
-		return s.DeleteBastion()
+		return s.DeleteBastion(ctx)
 	}
 
 	s.scope.Debug("Reconciling bastion host")
@@ -105,7 +105,7 @@ func (s *Service) ReconcileBastion() error {
 }
 
 // DeleteBastion deletes the Bastion instance.
-func (s *Service) DeleteBastion() error {
+func (s *Service) DeleteBastion(ctx context.Context) error {
 	instance, err := s.describeBastionInstance()
 	if err != nil {
 		if awserrors.IsNotFound(err) {

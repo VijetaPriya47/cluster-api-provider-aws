@@ -336,16 +336,16 @@ func (r *AWSManagedControlPlaneReconciler) reconcileNormal(ctx context.Context, 
 	awsnodeService := r.getAWSNodeService(managedScope)
 	kubeproxyService := r.getKubeProxyService(managedScope)
 
-	if err := networkSvc.ReconcileNetwork(); err != nil {
+	if err := networkSvc.ReconcileNetwork(ctx); err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to reconcile network for AWSManagedControlPlane %s/%s: %w", awsManagedControlPlane.Namespace, awsManagedControlPlane.Name, err)
 	}
 
-	if err := sgService.ReconcileSecurityGroups(); err != nil {
+	if err := sgService.ReconcileSecurityGroups(ctx); err != nil {
 		v1beta1conditions.MarkFalse(awsManagedControlPlane, infrav1.ClusterSecurityGroupsReadyCondition, infrav1.ClusterSecurityGroupReconciliationFailedReason, clusterv1beta1.ConditionSeverityError, "%s", err.Error())
 		return reconcile.Result{}, errors.Wrapf(err, "failed to reconcile general security groups for AWSManagedControlPlane %s/%s", awsManagedControlPlane.Namespace, awsManagedControlPlane.Name)
 	}
 
-	if err := ec2Service.ReconcileBastion(); err != nil {
+	if err := ec2Service.ReconcileBastion(ctx); err != nil {
 		v1beta1conditions.MarkFalse(awsManagedControlPlane, infrav1.BastionHostReadyCondition, infrav1.BastionHostFailedReason, clusterv1beta1.ConditionSeverityError, "%s", err.Error())
 		return reconcile.Result{}, fmt.Errorf("failed to reconcile bastion host for AWSManagedControlPlane %s/%s: %w", awsManagedControlPlane.Namespace, awsManagedControlPlane.Name, err)
 	}
@@ -413,12 +413,12 @@ func (r *AWSManagedControlPlaneReconciler) reconcileDelete(ctx context.Context, 
 		return reconcile.Result{}, err
 	}
 
-	if err := ec2svc.DeleteBastion(); err != nil {
+	if err := ec2svc.DeleteBastion(ctx); err != nil {
 		log.Error(err, "error deleting bastion for AWSManagedControlPlane", "namespace", controlPlane.Namespace, "name", controlPlane.Name)
 		return reconcile.Result{}, err
 	}
 
-	if err := sgService.DeleteSecurityGroups(); err != nil {
+	if err := sgService.DeleteSecurityGroups(ctx); err != nil {
 		log.Error(err, "error deleting general security groups for AWSManagedControlPlane", "namespace", controlPlane.Namespace, "name", controlPlane.Name)
 		return reconcile.Result{}, err
 	}
@@ -430,7 +430,7 @@ func (r *AWSManagedControlPlaneReconciler) reconcileDelete(ctx context.Context, 
 		}
 	}
 
-	if err := networkSvc.DeleteNetwork(); err != nil {
+	if err := networkSvc.DeleteNetwork(ctx); err != nil {
 		log.Error(err, "error deleting network for AWSManagedControlPlane", "namespace", controlPlane.Namespace, "name", controlPlane.Name)
 		return reconcile.Result{}, err
 	}

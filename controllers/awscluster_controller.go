@@ -253,11 +253,11 @@ func (r *AWSClusterReconciler) reconcileDelete(ctx context.Context, clusterScope
 		allErrs = append(allErrs, errors.Wrapf(err, "error deleting load balancers"))
 	}
 
-	if err := ec2svc.DeleteBastion(); err != nil {
+	if err := ec2svc.DeleteBastion(ctx); err != nil {
 		allErrs = append(allErrs, errors.Wrapf(err, "error deleting bastion"))
 	}
 
-	if err := sgService.DeleteSecurityGroups(); err != nil {
+	if err := sgService.DeleteSecurityGroups(ctx); err != nil {
 		allErrs = append(allErrs, errors.Wrap(err, "error deleting security groups"))
 	}
 
@@ -268,7 +268,7 @@ func (r *AWSClusterReconciler) reconcileDelete(ctx context.Context, clusterScope
 		}
 	}
 
-	if err := networkSvc.DeleteNetwork(); err != nil {
+	if err := networkSvc.DeleteNetwork(ctx); err != nil {
 		allErrs = append(allErrs, errors.Wrap(err, "error deleting network"))
 	}
 
@@ -331,18 +331,18 @@ func (r *AWSClusterReconciler) reconcileNormal(ctx context.Context, clusterScope
 	sgService := r.getSecurityGroupService(*clusterScope)
 	s3Service := s3.NewService(clusterScope)
 
-	if err := networkSvc.ReconcileNetwork(); err != nil {
+	if err := networkSvc.ReconcileNetwork(ctx); err != nil {
 		clusterScope.Error(err, "failed to reconcile network")
 		return reconcile.Result{}, err
 	}
 
-	if err := sgService.ReconcileSecurityGroups(); err != nil {
+	if err := sgService.ReconcileSecurityGroups(ctx); err != nil {
 		clusterScope.Error(err, "failed to reconcile security groups")
 		v1beta1conditions.MarkFalse(awsCluster, infrav1.ClusterSecurityGroupsReadyCondition, infrav1.ClusterSecurityGroupReconciliationFailedReason, infrautilconditions.ErrorConditionAfterInit(clusterScope.ClusterObj()), "%s", err.Error())
 		return reconcile.Result{}, err
 	}
 
-	if err := ec2Service.ReconcileBastion(); err != nil {
+	if err := ec2Service.ReconcileBastion(ctx); err != nil {
 		v1beta1conditions.MarkFalse(awsCluster, infrav1.BastionHostReadyCondition, infrav1.BastionHostFailedReason, infrautilconditions.ErrorConditionAfterInit(clusterScope.ClusterObj()), "%s", err.Error())
 		clusterScope.Error(err, "failed to reconcile bastion host")
 		return reconcile.Result{}, err

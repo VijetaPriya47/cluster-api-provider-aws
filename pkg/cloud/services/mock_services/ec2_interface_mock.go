@@ -115,17 +115,17 @@ func (mr *MockEC2InterfaceMockRecorder) CreateLaunchTemplateVersion(arg0, arg1, 
 }
 
 // DeleteBastion mocks base method.
-func (m *MockEC2Interface) DeleteBastion() error {
+func (m *MockEC2Interface) DeleteBastion(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteBastion")
+	ret := m.ctrl.Call(m, "DeleteBastion", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteBastion indicates an expected call of DeleteBastion.
-func (mr *MockEC2InterfaceMockRecorder) DeleteBastion() *gomock.Call {
+func (mr *MockEC2InterfaceMockRecorder) DeleteBastion(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBastion", reflect.TypeOf((*MockEC2Interface)(nil).DeleteBastion))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBastion", reflect.TypeOf((*MockEC2Interface)(nil).DeleteBastion), arg0)
 }
 
 // DeleteLaunchTemplate mocks base method.
@@ -354,17 +354,17 @@ func (mr *MockEC2InterfaceMockRecorder) PruneLaunchTemplateVersions(arg0 interfa
 }
 
 // ReconcileBastion mocks base method.
-func (m *MockEC2Interface) ReconcileBastion() error {
+func (m *MockEC2Interface) ReconcileBastion(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReconcileBastion")
+	ret := m.ctrl.Call(m, "ReconcileBastion", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReconcileBastion indicates an expected call of ReconcileBastion.
-func (mr *MockEC2InterfaceMockRecorder) ReconcileBastion() *gomock.Call {
+func (mr *MockEC2InterfaceMockRecorder) ReconcileBastion(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileBastion", reflect.TypeOf((*MockEC2Interface)(nil).ReconcileBastion))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileBastion", reflect.TypeOf((*MockEC2Interface)(nil).ReconcileBastion), arg0)
 }
 
 // ReconcileElasticIPFromPublicPool mocks base method.

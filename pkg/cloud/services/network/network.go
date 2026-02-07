@@ -17,6 +17,8 @@ limitations under the License.
 package network
 
 import (
+	"context"
+
 	"k8s.io/klog/v2"
 
 	infrav1 "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
@@ -27,7 +29,7 @@ import (
 )
 
 // ReconcileNetwork reconciles the network of the given cluster.
-func (s *Service) ReconcileNetwork() (err error) {
+func (s *Service) ReconcileNetwork(ctx context.Context) (err error) {
 	s.scope.Debug("Reconciling network for cluster", "cluster", klog.KRef(s.scope.Namespace(), s.scope.Name()))
 
 	// VPC.
@@ -98,7 +100,7 @@ func (s *Service) ReconcileNetwork() (err error) {
 }
 
 // DeleteNetwork deletes the network of the given cluster.
-func (s *Service) DeleteNetwork() (err error) {
+func (s *Service) DeleteNetwork(ctx context.Context) (err error) {
 	s.scope.Debug("Deleting network")
 
 	vpc := &infrav1.VPCSpec{}
