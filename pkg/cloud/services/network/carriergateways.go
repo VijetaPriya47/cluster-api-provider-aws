@@ -36,7 +36,7 @@ import (
 	v1beta1conditions "sigs.k8s.io/cluster-api/util/deprecated/v1beta1/conditions"
 )
 
-func (s *Service) reconcileCarrierGateway() error {
+func (s *Service) reconcileCarrierGateway(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping carrier gateway reconcile in unmanaged mode")
 		return nil
@@ -49,13 +49,13 @@ func (s *Service) reconcileCarrierGateway() error {
 
 	s.scope.Debug("Reconciling carrier gateway")
 
-	cagw, err := s.describeVpcCarrierGateway()
+	cagw, err := s.describeVpcCarrierGateway(ctx)
 	if awserrors.IsNotFound(err) {
 		if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 			return errors.Errorf("failed to validate network: no carrier gateway found in VPC %q", s.scope.VPC().ID)
 		}
 
-		cg, err := s.createCarrierGateway()
+		cg, err := s.createCarrierGateway(ctx)
 		if err != nil {
 			return err
 		}
@@ -82,13 +82,13 @@ func (s *Service) reconcileCarrierGateway() error {
 	return nil
 }
 
-func (s *Service) deleteCarrierGateway() error {
+func (s *Service) deleteCarrierGateways(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping carrier gateway deletion in unmanaged mode")
 		return nil
 	}
 
-	cagw, err := s.describeVpcCarrierGateway()
+	cagw, err := s.describeVpcCarrierGateway(ctx)
 	if awserrors.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -99,7 +99,7 @@ func (s *Service) deleteCarrierGateway() error {
 		CarrierGatewayId: cagw.CarrierGatewayId,
 	}
 
-	if _, err = s.EC2Client.DeleteCarrierGateway(context.TODO(), deleteReq); err != nil {
+	if _, err = s.EC2Client.DeleteCarrierGateway(ctx, deleteReq); err != nil {
 		record.Warnf(s.scope.InfraCluster(), "FailedDeleteCarrierGateway", "Failed to delete Carrier Gateway %q previously attached to VPC %q: %v", *cagw.CarrierGatewayId, s.scope.VPC().ID, err)
 		return errors.Wrapf(err, "failed to delete carrier gateway %q", *cagw.CarrierGatewayId)
 	}
@@ -110,8 +110,8 @@ func (s *Service) deleteCarrierGateway() error {
 	return nil
 }
 
-func (s *Service) createCarrierGateway() (*types.CarrierGateway, error) {
-	ig, err := s.EC2Client.CreateCarrierGateway(context.TODO(), &ec2.CreateCarrierGatewayInput{
+func (s *Service) createCarrierGateway(ctx context.Context) (*types.CarrierGateway, error) {
+	ig, err := s.EC2Client.CreateCarrierGateway(ctx, &ec2.CreateCarrierGatewayInput{
 		VpcId: aws.String(s.scope.VPC().ID),
 		TagSpecifications: []types.TagSpecification{
 			tags.BuildParamsToTagSpecification(types.ResourceTypeCarrierGateway, s.getGatewayTagParams(services.TemporaryResourceID)),
@@ -127,8 +127,8 @@ func (s *Service) createCarrierGateway() (*types.CarrierGateway, error) {
 	return ig.CarrierGateway, nil
 }
 
-func (s *Service) describeVpcCarrierGateway() (*types.CarrierGateway, error) {
-	out, err := s.EC2Client.DescribeCarrierGateways(context.TODO(), &ec2.DescribeCarrierGatewaysInput{
+func (s *Service) describeVpcCarrierGateway(ctx context.Context) (*types.CarrierGateway, error) {
+	out, err := s.EC2Client.DescribeCarrierGateways(ctx, &ec2.DescribeCarrierGatewaysInput{
 		Filters: []types.Filter{
 			filter.EC2.VPC(s.scope.VPC().ID),
 		},

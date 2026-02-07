@@ -28,8 +28,8 @@ import (
 	"sigs.k8s.io/cluster-api-provider-aws/v2/pkg/record"
 )
 
-func (s *Service) getAvailableZones() ([]string, error) {
-	out, err := s.EC2Client.DescribeAvailabilityZones(context.TODO(), &ec2.DescribeAvailabilityZonesInput{
+func (s *Service) getAvailableZones(ctx context.Context) ([]string, error) {
+	out, err := s.EC2Client.DescribeAvailabilityZones(ctx, &ec2.DescribeAvailabilityZonesInput{
 		Filters: []types.Filter{
 			filter.EC2.Available(),
 			filter.EC2.IgnoreLocalZones(),

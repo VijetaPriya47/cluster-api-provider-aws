@@ -36,7 +36,7 @@ import (
 	v1beta1conditions "sigs.k8s.io/cluster-api/util/deprecated/v1beta1/conditions"
 )
 
-func (s *Service) reconcileEgressOnlyInternetGateways() error {
+func (s *Service) reconcileEgressOnlyInternetGateways(ctx context.Context) error {
 	if !s.scope.VPC().IsIPv6Enabled() {
 		s.scope.Trace("Skipping egress only internet gateways reconcile in not ipv6 mode")
 		return nil
@@ -49,13 +49,13 @@ func (s *Service) reconcileEgressOnlyInternetGateways() error {
 
 	s.scope.Debug("Reconciling egress only internet gateways")
 
-	eigws, err := s.describeEgressOnlyVpcInternetGateways()
+	eigws, err := s.describeEgressOnlyVpcInternetGateways(ctx)
 	if awserrors.IsNotFound(err) {
 		if !s.scope.VPC().IsIPv6Enabled() {
 			return errors.Errorf("failed to validate network: no egress only internet gateways found in VPC %q", s.scope.VPC().ID)
 		}
 
-		ig, err := s.createEgressOnlyInternetGateway()
+		ig, err := s.createEgressOnlyInternetGateway(ctx)
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func (s *Service) reconcileEgressOnlyInternetGateways() error {
 	return nil
 }
 
-func (s *Service) deleteEgressOnlyInternetGateways() error {
+func (s *Service) deleteEgressOnlyInternetGateways(ctx context.Context) error {
 	if !s.scope.VPC().IsIPv6Enabled() {
 		s.scope.Trace("Skipping egress only internet gateway deletion in none ipv6 mode")
 		return nil
@@ -94,7 +94,7 @@ func (s *Service) deleteEgressOnlyInternetGateways() error {
 		return nil
 	}
 
-	eigws, err := s.describeEgressOnlyVpcInternetGateways()
+	eigws, err := s.describeEgressOnlyVpcInternetGateways(ctx)
 	if awserrors.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -106,7 +106,7 @@ func (s *Service) deleteEgressOnlyInternetGateways() error {
 			EgressOnlyInternetGatewayId: ig.EgressOnlyInternetGatewayId,
 		}
 
-		if _, err = s.EC2Client.DeleteEgressOnlyInternetGateway(context.TODO(), deleteReq); err != nil {
+		if _, err = s.EC2Client.DeleteEgressOnlyInternetGateway(ctx, deleteReq); err != nil {
 			record.Warnf(s.scope.InfraCluster(), "FailedDeleteEgressOnlyInternetGateway", "Failed to delete Egress Only Internet Gateway %q previously attached to VPC %q: %v", *ig.EgressOnlyInternetGatewayId, s.scope.VPC().ID, err)
 			return errors.Wrapf(err, "failed to delete egress only internet gateway %q", *ig.EgressOnlyInternetGatewayId)
 		}
@@ -118,8 +118,8 @@ func (s *Service) deleteEgressOnlyInternetGateways() error {
 	return nil
 }
 
-func (s *Service) createEgressOnlyInternetGateway() (*types.EgressOnlyInternetGateway, error) {
-	ig, err := s.EC2Client.CreateEgressOnlyInternetGateway(context.TODO(), &ec2.CreateEgressOnlyInternetGatewayInput{
+func (s *Service) createEgressOnlyInternetGateway(ctx context.Context) (*types.EgressOnlyInternetGateway, error) {
+	ig, err := s.EC2Client.CreateEgressOnlyInternetGateway(ctx, &ec2.CreateEgressOnlyInternetGatewayInput{
 		TagSpecifications: []types.TagSpecification{
 			tags.BuildParamsToTagSpecification(types.ResourceTypeEgressOnlyInternetGateway, s.getEgressOnlyGatewayTagParams(services.TemporaryResourceID)),
 		},
@@ -135,11 +135,11 @@ func (s *Service) createEgressOnlyInternetGateway() (*types.EgressOnlyInternetGa
 	return ig.EgressOnlyInternetGateway, nil
 }
 
-func (s *Service) describeEgressOnlyVpcInternetGateways() ([]types.EgressOnlyInternetGateway, error) {
+func (s *Service) describeEgressOnlyVpcInternetGateways(ctx context.Context) ([]types.EgressOnlyInternetGateway, error) {
 	// The API for DescribeEgressOnlyInternetGateways does not support filtering by VPC ID attachment.
 	// More details: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeEgressOnlyInternetGateways.html
 	// Since the eigw is managed by CAPA, we can filter by the kubernetes cluster tag.
-	out, err := s.EC2Client.DescribeEgressOnlyInternetGateways(context.TODO(), &ec2.DescribeEgressOnlyInternetGatewaysInput{
+	out, err := s.EC2Client.DescribeEgressOnlyInternetGateways(ctx, &ec2.DescribeEgressOnlyInternetGatewaysInput{
 		Filters: []types.Filter{
 			filter.EC2.Cluster(s.scope.Name()),
 		},

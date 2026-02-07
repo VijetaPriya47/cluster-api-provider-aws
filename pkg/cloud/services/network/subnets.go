@@ -48,7 +48,7 @@ const (
 	defaultMaxNumAZs        = 3
 )
 
-func (s *Service) reconcileSubnets() error {
+func (s *Service) reconcileSubnets(ctx context.Context) error {
 	s.scope.Info("Reconciling subnets")
 
 	subnets := s.scope.Subnets()
@@ -74,7 +74,7 @@ func (s *Service) reconcileSubnets() error {
 		// for each az in a region up to a maximum of 3 azs
 		s.scope.Info("no subnets specified, setting defaults")
 
-		subnets, err = s.getDefaultSubnets()
+		subnets, err = s.getDefaultSubnets(ctx)
 		if err != nil {
 			record.Warnf(s.scope.InfraCluster(), "FailedDefaultSubnets", "Failed getting default subnets: %v", err)
 			return errors.Wrap(err, "failed getting default subnets")
@@ -88,7 +88,7 @@ func (s *Service) reconcileSubnets() error {
 	}
 
 	// Describe subnets in the vpc.
-	if existing, err = s.describeVpcSubnets(); err != nil {
+	if existing, err = s.describeVpcSubnets(ctx); err != nil {
 		return err
 	}
 
@@ -98,7 +98,7 @@ func (s *Service) reconcileSubnets() error {
 			return err
 		}
 
-		zones, err := s.getAvailableZones()
+		zones, err := s.getAvailableZones(ctx)
 		if err != nil {
 			return err
 		}
@@ -171,7 +171,7 @@ func (s *Service) reconcileSubnets() error {
 	// Reconciling the zone information for the subnets. Subnets are grouped
 	// by regular zones (availability zones) or edge zones (local zones or wavelength zones)
 	// based in the zone-type attribute for zone.
-	if err := s.reconcileZoneInfo(subnets); err != nil {
+	if err := s.reconcileZoneInfo(ctx, subnets); err != nil {
 		record.Warnf(s.scope.InfraCluster(), "FailedNoZoneInfo", "Expected the zone attributes to be populated to subnet")
 		return errors.Wrapf(err, "expected the zone attributes to be populated to subnet")
 	}
@@ -196,7 +196,7 @@ func (s *Service) reconcileSubnets() error {
 				continue
 			}
 
-			nsn, err := s.createSubnet(subnet)
+			nsn, err := s.createSubnet(ctx, subnet)
 			if err != nil {
 				return err
 			}
@@ -209,8 +209,8 @@ func (s *Service) reconcileSubnets() error {
 	return nil
 }
 
-func (s *Service) retrieveZoneInfo(zoneNames []string) ([]types.AvailabilityZone, error) {
-	zones, err := s.EC2Client.DescribeAvailabilityZones(context.TODO(), &ec2.DescribeAvailabilityZonesInput{
+func (s *Service) retrieveZoneInfo(ctx context.Context, zoneNames []string) ([]types.AvailabilityZone, error) {
+	zones, err := s.EC2Client.DescribeAvailabilityZones(ctx, &ec2.DescribeAvailabilityZonesInput{
 		ZoneNames: zoneNames,
 	})
 	if err != nil {
@@ -224,9 +224,9 @@ func (s *Service) retrieveZoneInfo(zoneNames []string) ([]types.AvailabilityZone
 // reconcileZoneInfo discover the zones for all subnets, and retrieve
 // persist the zone information from resource API, such as Type and
 // Parent Zone.
-func (s *Service) reconcileZoneInfo(subnets infrav1.Subnets) error {
+func (s *Service) reconcileZoneInfo(ctx context.Context, subnets infrav1.Subnets) error {
 	if len(subnets) > 0 {
-		zones, err := s.retrieveZoneInfo(subnets.GetUniqueZones())
+		zones, err := s.retrieveZoneInfo(ctx, subnets.GetUniqueZones())
 		if err != nil {
 			return err
 		}
@@ -238,8 +238,8 @@ func (s *Service) reconcileZoneInfo(subnets infrav1.Subnets) error {
 	return nil
 }
 
-func (s *Service) getDefaultSubnets() (infrav1.Subnets, error) {
-	zones, err := s.getAvailableZones()
+func (s *Service) getDefaultSubnets(ctx context.Context) (infrav1.Subnets, error) {
+	zones, err := s.getAvailableZones(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -354,20 +354,20 @@ func (s *Service) getDefaultSubnets() (infrav1.Subnets, error) {
 	return subnets, nil
 }
 
-func (s *Service) deleteSubnets() error {
+func (s *Service) deleteSubnets(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping subnets deletion in unmanaged mode")
 		return nil
 	}
 
 	// Describe subnets in the vpc.
-	existing, err := s.describeSubnets()
+	existing, err := s.describeSubnets(ctx)
 	if err != nil {
 		return err
 	}
 
 	for _, sn := range existing.Subnets {
-		if err := s.deleteSubnet(aws.ToString(sn.SubnetId)); err != nil {
+		if err := s.deleteSubnet(ctx, aws.ToString(sn.SubnetId)); err != nil {
 			return err
 		}
 	}
@@ -375,18 +375,18 @@ func (s *Service) deleteSubnets() error {
 	return nil
 }
 
-func (s *Service) describeVpcSubnets() (infrav1.Subnets, error) {
-	sns, err := s.describeSubnets()
+func (s *Service) describeVpcSubnets(ctx context.Context) (infrav1.Subnets, error) {
+	sns, err := s.describeSubnets(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	routeTables, err := s.describeVpcRouteTablesBySubnet()
+	routeTables, err := s.describeVpcRouteTablesBySubnet(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	natGateways, err := s.describeNatGatewaysBySubnet()
+	natGateways, err := s.describeNatGatewaysBySubnet(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -442,7 +442,7 @@ func (s *Service) describeVpcSubnets() (infrav1.Subnets, error) {
 	return subnets, nil
 }
 
-func (s *Service) describeSubnets() (*ec2.DescribeSubnetsOutput, error) {
+func (s *Service) describeSubnets(ctx context.Context) (*ec2.DescribeSubnetsOutput, error) {
 	input := &ec2.DescribeSubnetsInput{
 		Filters: []types.Filter{
 			filter.EC2.SubnetStates(types.SubnetStatePending, types.SubnetStateAvailable),
@@ -455,7 +455,7 @@ func (s *Service) describeSubnets() (*ec2.DescribeSubnetsOutput, error) {
 		input.Filters = append(input.Filters, filter.EC2.VPC(s.scope.VPC().ID))
 	}
 
-	out, err := s.EC2Client.DescribeSubnets(context.TODO(), input)
+	out, err := s.EC2Client.DescribeSubnets(ctx, input)
 	if err != nil {
 		record.Eventf(s.scope.InfraCluster(), "FailedDescribeSubnet", "Failed to describe subnets in vpc %q: %v", s.scope.VPC().ID, err)
 		return nil, errors.Wrapf(err, "failed to describe subnets in vpc %q", s.scope.VPC().ID)
@@ -463,7 +463,7 @@ func (s *Service) describeSubnets() (*ec2.DescribeSubnetsOutput, error) {
 	return out, nil
 }
 
-func (s *Service) createSubnet(sn *infrav1.SubnetSpec) (*infrav1.SubnetSpec, error) {
+func (s *Service) createSubnet(ctx context.Context, sn *infrav1.SubnetSpec) (*infrav1.SubnetSpec, error) {
 	// When managing subnets, the ID specified in the spec is the name of the subnet.
 	if sn.Tags == nil {
 		sn.Tags = make(infrav1.Tags)
@@ -475,7 +475,7 @@ func (s *Service) createSubnet(sn *infrav1.SubnetSpec) (*infrav1.SubnetSpec, err
 
 	// Retrieve zone information used later to change the zone attributes.
 	if len(sn.AvailabilityZone) > 0 {
-		zones, err := s.retrieveZoneInfo([]string{sn.AvailabilityZone})
+		zones, err := s.retrieveZoneInfo(ctx, []string{sn.AvailabilityZone})
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to discover zone information for subnet's zone %q", sn.AvailabilityZone)
 		}
@@ -612,8 +612,8 @@ func (s *Service) createSubnet(sn *infrav1.SubnetSpec) (*infrav1.SubnetSpec, err
 	return subnet, nil
 }
 
-func (s *Service) deleteSubnet(id string) error {
-	_, err := s.EC2Client.DeleteSubnet(context.TODO(), &ec2.DeleteSubnetInput{
+func (s *Service) deleteSubnet(ctx context.Context, id string) error {
+	_, err := s.EC2Client.DeleteSubnet(ctx, &ec2.DeleteSubnetInput{
 		SubnetId: aws.String(id),
 	})
 	if err != nil {

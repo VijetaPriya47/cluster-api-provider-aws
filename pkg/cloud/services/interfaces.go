@@ -87,13 +87,13 @@ type EC2Interface interface {
 	PruneLaunchTemplateVersions(id string) (*ec2types.LaunchTemplateVersion, error)
 	DeleteLaunchTemplate(id string) error
 	LaunchTemplateNeedsUpdate(scope scope.LaunchTemplateScope, incoming *expinfrav1.AWSLaunchTemplate, existing *expinfrav1.AWSLaunchTemplate) (bool, error)
-	DeleteBastion() error
-	ReconcileBastion() error
+	DeleteBastion(ctx context.Context) error
+	ReconcileBastion(ctx context.Context) error
 	// ReconcileElasticIPFromPublicPool reconciles the elastic IP from a custom Public IPv4 Pool.
-	ReconcileElasticIPFromPublicPool(pool *infrav1.ElasticIPPool, instance *infrav1.Instance) (bool, error)
+	ReconcileElasticIPFromPublicPool(ctx context.Context, pool *infrav1.ElasticIPPool, instance *infrav1.Instance) (bool, error)
 
 	// ReleaseElasticIP reconciles the elastic IP from a custom Public IPv4 Pool.
-	ReleaseElasticIP(instanceID string) error
+	ReleaseElasticIP(ctx context.Context, instanceID string) error
 
 	// Dedicated Host management
 	AllocateDedicatedHost(ctx context.Context, spec *infrav1.DynamicHostAllocationSpec, instanceType, availabilityZone string, scope *scope.MachineScope) (string, error)
@@ -133,15 +133,15 @@ type ELBInterface interface {
 // NetworkInterface encapsulates the methods exposed to the cluster
 // controller.
 type NetworkInterface interface {
-	DeleteNetwork() error
-	ReconcileNetwork() error
+	DeleteNetwork(ctx context.Context) error
+	ReconcileNetwork(ctx context.Context) error
 }
 
 // SecurityGroupInterface encapsulates the methods exposed to the cluster
 // controller.
 type SecurityGroupInterface interface {
-	DeleteSecurityGroups() error
-	ReconcileSecurityGroups() error
+	DeleteSecurityGroups(ctx context.Context) error
+	ReconcileSecurityGroups(ctx context.Context) error
 }
 
 // ObjectStoreInterface encapsulates the methods exposed to the machine actuator.

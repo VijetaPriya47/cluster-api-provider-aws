@@ -115,17 +115,17 @@ func (mr *MockEC2InterfaceMockRecorder) CreateLaunchTemplateVersion(arg0, arg1, 
 }
 
 // DeleteBastion mocks base method.
-func (m *MockEC2Interface) DeleteBastion() error {
+func (m *MockEC2Interface) DeleteBastion(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteBastion")
+	ret := m.ctrl.Call(m, "DeleteBastion", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteBastion indicates an expected call of DeleteBastion.
-func (mr *MockEC2InterfaceMockRecorder) DeleteBastion() *gomock.Call {
+func (mr *MockEC2InterfaceMockRecorder) DeleteBastion(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBastion", reflect.TypeOf((*MockEC2Interface)(nil).DeleteBastion))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBastion", reflect.TypeOf((*MockEC2Interface)(nil).DeleteBastion), arg0)
 }
 
 // DeleteLaunchTemplate mocks base method.
@@ -354,32 +354,32 @@ func (mr *MockEC2InterfaceMockRecorder) PruneLaunchTemplateVersions(arg0 interfa
 }
 
 // ReconcileBastion mocks base method.
-func (m *MockEC2Interface) ReconcileBastion() error {
+func (m *MockEC2Interface) ReconcileBastion(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReconcileBastion")
+	ret := m.ctrl.Call(m, "ReconcileBastion", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReconcileBastion indicates an expected call of ReconcileBastion.
-func (mr *MockEC2InterfaceMockRecorder) ReconcileBastion() *gomock.Call {
+func (mr *MockEC2InterfaceMockRecorder) ReconcileBastion(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileBastion", reflect.TypeOf((*MockEC2Interface)(nil).ReconcileBastion))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileBastion", reflect.TypeOf((*MockEC2Interface)(nil).ReconcileBastion), arg0)
 }
 
 // ReconcileElasticIPFromPublicPool mocks base method.
-func (m *MockEC2Interface) ReconcileElasticIPFromPublicPool(arg0 *v1beta2.ElasticIPPool, arg1 *v1beta2.Instance) (bool, error) {
+func (m *MockEC2Interface) ReconcileElasticIPFromPublicPool(arg0 context.Context, arg1 *v1beta2.ElasticIPPool, arg2 *v1beta2.Instance) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReconcileElasticIPFromPublicPool", arg0, arg1)
+	ret := m.ctrl.Call(m, "ReconcileElasticIPFromPublicPool", arg0, arg1, arg2)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReconcileElasticIPFromPublicPool indicates an expected call of ReconcileElasticIPFromPublicPool.
-func (mr *MockEC2InterfaceMockRecorder) ReconcileElasticIPFromPublicPool(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockEC2InterfaceMockRecorder) ReconcileElasticIPFromPublicPool(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileElasticIPFromPublicPool", reflect.TypeOf((*MockEC2Interface)(nil).ReconcileElasticIPFromPublicPool), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileElasticIPFromPublicPool", reflect.TypeOf((*MockEC2Interface)(nil).ReconcileElasticIPFromPublicPool), arg0, arg1, arg2)
 }
 
 // ReleaseDedicatedHost mocks base method.
@@ -397,17 +397,17 @@ func (mr *MockEC2InterfaceMockRecorder) ReleaseDedicatedHost(arg0, arg1 interfac
 }
 
 // ReleaseElasticIP mocks base method.
-func (m *MockEC2Interface) ReleaseElasticIP(arg0 string) error {
+func (m *MockEC2Interface) ReleaseElasticIP(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReleaseElasticIP", arg0)
+	ret := m.ctrl.Call(m, "ReleaseElasticIP", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReleaseElasticIP indicates an expected call of ReleaseElasticIP.
-func (mr *MockEC2InterfaceMockRecorder) ReleaseElasticIP(arg0 interface{}) *gomock.Call {
+func (mr *MockEC2InterfaceMockRecorder) ReleaseElasticIP(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseElasticIP", reflect.TypeOf((*MockEC2Interface)(nil).ReleaseElasticIP), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseElasticIP", reflect.TypeOf((*MockEC2Interface)(nil).ReleaseElasticIP), arg0, arg1)
 }
 
 // TerminateInstance mocks base method.

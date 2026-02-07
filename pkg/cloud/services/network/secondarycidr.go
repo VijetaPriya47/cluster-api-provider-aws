@@ -29,13 +29,13 @@ func isVPCPresent(vpcs *ec2.DescribeVpcsOutput) bool {
 	return vpcs != nil && len(vpcs.Vpcs) > 0
 }
 
-func (s *Service) associateSecondaryCidrs() error {
+func (s *Service) associateSecondaryCidrs(ctx context.Context) error {
 	secondaryCidrBlocks := s.scope.AllSecondaryCidrBlocks()
 	if len(secondaryCidrBlocks) == 0 {
 		return nil
 	}
 
-	vpcs, err := s.EC2Client.DescribeVpcs(context.TODO(), &ec2.DescribeVpcsInput{
+	vpcs, err := s.EC2Client.DescribeVpcs(ctx, &ec2.DescribeVpcsInput{
 		VpcIds: []string{s.scope.VPC().ID},
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func (s *Service) associateSecondaryCidrs() error {
 			continue
 		}
 
-		out, err := s.EC2Client.AssociateVpcCidrBlock(context.TODO(), &ec2.AssociateVpcCidrBlockInput{
+		out, err := s.EC2Client.AssociateVpcCidrBlock(ctx, &ec2.AssociateVpcCidrBlockInput{
 			VpcId:     &s.scope.VPC().ID,
 			CidrBlock: &desiredCidrBlock.IPv4CidrBlock,
 		})
@@ -78,7 +78,7 @@ func (s *Service) associateSecondaryCidrs() error {
 	return nil
 }
 
-func (s *Service) disassociateSecondaryCidrs() error {
+func (s *Service) disassociateSecondaryCidrs(ctx context.Context) error {
 	// If the VPC is unmanaged or not yet populated, return early.
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) || s.scope.VPC().ID == "" {
 		return nil
@@ -89,7 +89,7 @@ func (s *Service) disassociateSecondaryCidrs() error {
 		return nil
 	}
 
-	vpcs, err := s.EC2Client.DescribeVpcs(context.TODO(), &ec2.DescribeVpcsInput{
+	vpcs, err := s.EC2Client.DescribeVpcs(ctx, &ec2.DescribeVpcsInput{
 		VpcIds: []string{s.scope.VPC().ID},
 	})
 	if err != nil {
@@ -104,7 +104,7 @@ func (s *Service) disassociateSecondaryCidrs() error {
 	for _, cidrBlockToDelete := range secondaryCidrBlocks {
 		for _, existing := range existingAssociations {
 			if *existing.CidrBlock == cidrBlockToDelete.IPv4CidrBlock {
-				if _, err := s.EC2Client.DisassociateVpcCidrBlock(context.TODO(), &ec2.DisassociateVpcCidrBlockInput{
+				if _, err := s.EC2Client.DisassociateVpcCidrBlock(ctx, &ec2.DisassociateVpcCidrBlockInput{
 					AssociationId: existing.AssociationId,
 				}); err != nil {
 					record.Warnf(s.scope.InfraCluster(), "FailedDisassociateSecondaryCidr", "Failed disassociating secondary CIDR %q from VPC %v", cidrBlockToDelete.IPv4CidrBlock, err)

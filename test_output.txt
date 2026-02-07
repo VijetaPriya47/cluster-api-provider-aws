@@ -1,0 +1,135 @@
+fatal: No names found, cannot describe anything.
+GOBIN=/home/vijetapriya/cluster-api-provider-aws/hack/tools/bin ./scripts/go_install.sh sigs.k8s.io/controller-runtime/tools/setup-envtest setup-envtest release-0.20
+kube-builder assets: /home/vijetapriya/.local/share/kubebuilder-envtest/k8s/1.32.0-linux-amd64
+KUBEBUILDER_ASSETS="/home/vijetapriya/.local/share/kubebuilder-envtest/k8s/1.32.0-linux-amd64" go test ./...
+?   	sigs.k8s.io/cluster-api-provider-aws/v2	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta1	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/bootstrap/eks/api/v1beta1	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/bootstrap/eks/api/v1beta2	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/bootstrap/eks/controllers	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/bootstrap/eks/internal/userdata	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/ami	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/api/ami/v1beta1	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/api/ami/v1beta1/scheme	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/api/bootstrap/v1alpha1	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/api/bootstrap/v1alpha1/scheme	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/api/bootstrap/v1beta1	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/api/bootstrap/v1beta1/scheme	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cloudformation/bootstrap	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cloudformation/service	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/ami	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/ami/common	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/ami/list	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/bootstrap	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/bootstrap/credentials	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/bootstrap/iam	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/controller	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/controller/credentials	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/controller/rollout	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/eks	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/eks/addons	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/flags	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/gc	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/resource	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/resource/list	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/util	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cmd/version	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/configreader	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/controller	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/controller/credentials	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/controller/rollout	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/converters	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/credentials	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/gc	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/printers	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/resource	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/controllers	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/controlplane/eks/api/v1beta1	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/controlplane/eks/api/v1beta2	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/controlplane/eks/controllers	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/controlplane/rosa/api/v1beta2	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/controlplane/rosa/controllers	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/docs/book/cmd/amilist	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/docs/book/cmd/clusterawsadmdocs	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/exp	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/exp/api/v1beta1	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/exp/api/v1beta2	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/exp/controlleridentitycreator	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/exp/controllers	14.840s
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/exp/instancestate	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/exp/utils	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/feature	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/hack/boilerplate/test	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/iam/api/v1beta1	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/annotations	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/awserrors	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/converters	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/endpoints	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/filter	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/identity	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/logs	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/metrics	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/scope	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/autoscaling	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/autoscaling/mock_autoscalingiface	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/awsnode	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/common	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/ec2	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/eks	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/eks/iam	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/eks/mock_eksiface	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/elb	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/gc	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/iamauth	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/iamauth/mock_iamauth	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/instancestate	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/instancestate/mock_eventbridgeiface	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/instancestate/mock_sqsiface	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/kubeproxy	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/mock_services	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/network	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/s3	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/s3/mock_s3iface	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/secretsmanager	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/secretsmanager/mock_secretsmanageriface	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/securitygroup	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/ssm	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/ssm/mock_ssmiface	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/sts	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/sts/mock_stsiface	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/userdata	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/services/wait	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/tags	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloud/throttle	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/cloudtest	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/eks	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/eks/addons	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/eks/identityprovider	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/hash	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/bytes	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/cidr	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/cmp	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/mime	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/rate	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/testcert	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/internal/tristate	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/logger	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/planner	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/record	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/rosa	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/pkg/utils	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/test/helpers	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/test/helpers/external	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/test/helpers/kubernetesversions	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/test/mocks	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/test/mocks/v2	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/util/conditions	[no test files]
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/util/defaulting	[no test files]
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/util/paused	(cached)
+ok  	sigs.k8s.io/cluster-api-provider-aws/v2/util/system	(cached)
+?   	sigs.k8s.io/cluster-api-provider-aws/v2/version	[no test files]

@@ -21,6 +21,7 @@ limitations under the License.
 package mock_services
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -50,29 +51,29 @@ func (m *MockSecurityGroupInterface) EXPECT() *MockSecurityGroupInterfaceMockRec
 }
 
 // DeleteSecurityGroups mocks base method.
-func (m *MockSecurityGroupInterface) DeleteSecurityGroups() error {
+func (m *MockSecurityGroupInterface) DeleteSecurityGroups(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteSecurityGroups")
+	ret := m.ctrl.Call(m, "DeleteSecurityGroups", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteSecurityGroups indicates an expected call of DeleteSecurityGroups.
-func (mr *MockSecurityGroupInterfaceMockRecorder) DeleteSecurityGroups() *gomock.Call {
+func (mr *MockSecurityGroupInterfaceMockRecorder) DeleteSecurityGroups(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSecurityGroups", reflect.TypeOf((*MockSecurityGroupInterface)(nil).DeleteSecurityGroups))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSecurityGroups", reflect.TypeOf((*MockSecurityGroupInterface)(nil).DeleteSecurityGroups), arg0)
 }
 
 // ReconcileSecurityGroups mocks base method.
-func (m *MockSecurityGroupInterface) ReconcileSecurityGroups() error {
+func (m *MockSecurityGroupInterface) ReconcileSecurityGroups(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReconcileSecurityGroups")
+	ret := m.ctrl.Call(m, "ReconcileSecurityGroups", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReconcileSecurityGroups indicates an expected call of ReconcileSecurityGroups.
-func (mr *MockSecurityGroupInterfaceMockRecorder) ReconcileSecurityGroups() *gomock.Call {
+func (mr *MockSecurityGroupInterfaceMockRecorder) ReconcileSecurityGroups(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileSecurityGroups", reflect.TypeOf((*MockSecurityGroupInterface)(nil).ReconcileSecurityGroups))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileSecurityGroups", reflect.TypeOf((*MockSecurityGroupInterface)(nil).ReconcileSecurityGroups), arg0)
 }

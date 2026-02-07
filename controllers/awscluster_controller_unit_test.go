@@ -205,10 +205,10 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 			t.Run("Should successfully create AWSCluster with Cluster Finalizer and LoadBalancerReady status true on AWSCluster", func(t *testing.T) {
 				g := NewWithT(t)
 				runningCluster := func() {
-					ec2Svc.EXPECT().ReconcileBastion().Return(nil)
+					ec2Svc.EXPECT().ReconcileBastion(gomock.Any()).Return(nil)
 					elbSvc.EXPECT().ReconcileLoadbalancers(gomock.Any()).Return(nil)
-					networkSvc.EXPECT().ReconcileNetwork().Return(nil)
-					sgSvc.EXPECT().ReconcileSecurityGroups().Return(nil)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().ReconcileSecurityGroups(gomock.Any()).Return(nil)
 				}
 
 				awsCluster := getAWSCluster("test", "test")
@@ -261,10 +261,10 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 			t.Run("when BYO IP is set", func(t *testing.T) {
 				g := NewWithT(t)
 				runningCluster := func() {
-					ec2Svc.EXPECT().ReconcileBastion().Return(nil)
+					ec2Svc.EXPECT().ReconcileBastion(gomock.Any()).Return(nil)
 					elbSvc.EXPECT().ReconcileLoadbalancers(gomock.Any()).Return(nil)
-					networkSvc.EXPECT().ReconcileNetwork().Return(nil)
-					sgSvc.EXPECT().ReconcileSecurityGroups().Return(nil)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().ReconcileSecurityGroups(gomock.Any()).Return(nil)
 				}
 
 				awsCluster := getAWSCluster("test", "test")
@@ -294,7 +294,7 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 				g := NewWithT(t)
 				awsCluster := getAWSCluster("test", "test")
 				runningCluster := func() {
-					networkSvc.EXPECT().ReconcileNetwork().Return(expectedErr)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(expectedErr)
 				}
 				csClient := setup(t, &awsCluster)
 				defer teardown()
@@ -314,8 +314,8 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 				g := NewWithT(t)
 				awsCluster := getAWSCluster("test", "test")
 				runningCluster := func() {
-					networkSvc.EXPECT().ReconcileNetwork().Return(nil)
-					sgSvc.EXPECT().ReconcileSecurityGroups().Return(expectedErr)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().ReconcileSecurityGroups(gomock.Any()).Return(expectedErr)
 				}
 				csClient := setup(t, &awsCluster)
 				defer teardown()
@@ -336,9 +336,9 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 				g := NewWithT(t)
 				awsCluster := getAWSCluster("test", "test")
 				runningCluster := func() {
-					networkSvc.EXPECT().ReconcileNetwork().Return(nil)
-					sgSvc.EXPECT().ReconcileSecurityGroups().Return(nil)
-					ec2Svc.EXPECT().ReconcileBastion().Return(expectedErr)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().ReconcileSecurityGroups(gomock.Any()).Return(nil)
+					ec2Svc.EXPECT().ReconcileBastion(gomock.Any()).Return(expectedErr)
 				}
 				csClient := setup(t, &awsCluster)
 				defer teardown()
@@ -359,9 +359,9 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 				g := NewWithT(t)
 				awsCluster := getAWSCluster("test", "test")
 				runningCluster := func() {
-					networkSvc.EXPECT().ReconcileNetwork().Return(nil)
-					sgSvc.EXPECT().ReconcileSecurityGroups().Return(nil)
-					ec2Svc.EXPECT().ReconcileBastion().Return(nil)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().ReconcileSecurityGroups(gomock.Any()).Return(nil)
+					ec2Svc.EXPECT().ReconcileBastion(gomock.Any()).Return(nil)
 					elbSvc.EXPECT().ReconcileLoadbalancers(gomock.Any()).Return(expectedErr)
 				}
 				csClient := setup(t, &awsCluster)
@@ -383,9 +383,9 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 				g := NewWithT(t)
 				awsCluster := getAWSCluster("test", "test")
 				runningCluster := func() {
-					networkSvc.EXPECT().ReconcileNetwork().Return(nil)
-					sgSvc.EXPECT().ReconcileSecurityGroups().Return(nil)
-					ec2Svc.EXPECT().ReconcileBastion().Return(nil)
+					networkSvc.EXPECT().ReconcileNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().ReconcileSecurityGroups(gomock.Any()).Return(nil)
+					ec2Svc.EXPECT().ReconcileBastion(gomock.Any()).Return(nil)
 					elbSvc.EXPECT().ReconcileLoadbalancers(gomock.Any()).Return(nil)
 				}
 				csClient := setup(t, &awsCluster)
@@ -408,10 +408,10 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 	t.Run("Reconcile delete AWSCluster", func(t *testing.T) {
 		t.Run("Reconcile success", func(t *testing.T) {
 			deleteCluster := func() {
-				ec2Svc.EXPECT().DeleteBastion().Return(nil)
+				ec2Svc.EXPECT().DeleteBastion(gomock.Any()).Return(nil)
 				elbSvc.EXPECT().DeleteLoadbalancers(gomock.Any()).Return(nil)
-				networkSvc.EXPECT().DeleteNetwork().Return(nil)
-				sgSvc.EXPECT().DeleteSecurityGroups().Return(nil)
+				networkSvc.EXPECT().DeleteNetwork(gomock.Any()).Return(nil)
+				sgSvc.EXPECT().DeleteSecurityGroups(gomock.Any()).Return(nil)
 			}
 			t.Run("Should successfully delete AWSCluster with Cluster Finalizer removed", func(t *testing.T) {
 				g := NewWithT(t)
@@ -440,9 +440,9 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 				deleteCluster := func() {
 					t.Helper()
 					elbSvc.EXPECT().DeleteLoadbalancers(gomock.Any()).Return(expectedErr)
-					ec2Svc.EXPECT().DeleteBastion().Return(nil)
-					networkSvc.EXPECT().DeleteNetwork().Return(nil)
-					sgSvc.EXPECT().DeleteSecurityGroups().Return(nil)
+					ec2Svc.EXPECT().DeleteBastion(gomock.Any()).Return(nil)
+					networkSvc.EXPECT().DeleteNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().DeleteSecurityGroups(gomock.Any()).Return(nil)
 				}
 				awsCluster := getAWSCluster("test", "test")
 				awsCluster.Finalizers = []string{infrav1.ClusterFinalizer}
@@ -464,10 +464,10 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 			t.Run("Should fail AWSCluster delete with Bastion deletion failed and Cluster Finalizer not removed", func(t *testing.T) {
 				g := NewWithT(t)
 				deleteCluster := func() {
-					ec2Svc.EXPECT().DeleteBastion().Return(expectedErr)
+					ec2Svc.EXPECT().DeleteBastion(gomock.Any()).Return(expectedErr)
 					elbSvc.EXPECT().DeleteLoadbalancers(gomock.Any()).Return(nil)
-					networkSvc.EXPECT().DeleteNetwork().Return(nil)
-					sgSvc.EXPECT().DeleteSecurityGroups().Return(nil)
+					networkSvc.EXPECT().DeleteNetwork(gomock.Any()).Return(nil)
+					sgSvc.EXPECT().DeleteSecurityGroups(gomock.Any()).Return(nil)
 				}
 				awsCluster := getAWSCluster("test", "test")
 				awsCluster.Finalizers = []string{infrav1.ClusterFinalizer}
@@ -489,10 +489,10 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 			t.Run("Should fail AWSCluster delete with security group deletion failed and Cluster Finalizer not removed", func(t *testing.T) {
 				g := NewWithT(t)
 				deleteCluster := func() {
-					ec2Svc.EXPECT().DeleteBastion().Return(nil)
+					ec2Svc.EXPECT().DeleteBastion(gomock.Any()).Return(nil)
 					elbSvc.EXPECT().DeleteLoadbalancers(gomock.Any()).Return(nil)
-					sgSvc.EXPECT().DeleteSecurityGroups().Return(expectedErr)
-					networkSvc.EXPECT().DeleteNetwork().Return(nil)
+					sgSvc.EXPECT().DeleteSecurityGroups(gomock.Any()).Return(expectedErr)
+					networkSvc.EXPECT().DeleteNetwork(gomock.Any()).Return(nil)
 				}
 				awsCluster := getAWSCluster("test", "test")
 				awsCluster.Finalizers = []string{infrav1.ClusterFinalizer}
@@ -514,10 +514,10 @@ func TestAWSClusterReconcileOperations(t *testing.T) {
 			t.Run("Should fail AWSCluster delete with network deletion failed and Cluster Finalizer not removed", func(t *testing.T) {
 				g := NewWithT(t)
 				deleteCluster := func() {
-					ec2Svc.EXPECT().DeleteBastion().Return(nil)
+					ec2Svc.EXPECT().DeleteBastion(gomock.Any()).Return(nil)
 					elbSvc.EXPECT().DeleteLoadbalancers(gomock.Any()).Return(nil)
-					sgSvc.EXPECT().DeleteSecurityGroups().Return(nil)
-					networkSvc.EXPECT().DeleteNetwork().Return(expectedErr)
+					sgSvc.EXPECT().DeleteSecurityGroups(gomock.Any()).Return(nil)
+					networkSvc.EXPECT().DeleteNetwork(gomock.Any()).Return(expectedErr)
 				}
 				awsCluster := getAWSCluster("test", "test")
 				awsCluster.Finalizers = []string{infrav1.ClusterFinalizer}

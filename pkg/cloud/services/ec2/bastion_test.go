@@ -256,7 +256,7 @@ func TestServiceDeleteBastion(t *testing.T) {
 				s := NewService(scope)
 				s.EC2Client = ec2Mock
 
-				err = s.DeleteBastion()
+				err = s.DeleteBastion(context.TODO())
 				if tc.expectError {
 					g.Expect(err).NotTo(BeNil())
 					return
@@ -488,7 +488,7 @@ func TestServiceReconcileBastion(t *testing.T) {
 				s := NewService(scope)
 				s.EC2Client = ec2Mock
 
-				err = s.ReconcileBastion()
+				err = s.ReconcileBastion(context.TODO())
 				if tc.expectError {
 					g.Expect(err).NotTo(BeNil())
 					return
@@ -721,7 +721,7 @@ func TestServiceReconcileBastionUSGOV(t *testing.T) {
 				s := NewService(scope)
 				s.EC2Client = ec2Mock
 
-				err = s.ReconcileBastion()
+				err = s.ReconcileBastion(context.TODO())
 				if tc.expectError {
 					g.Expect(err).NotTo(BeNil())
 					return

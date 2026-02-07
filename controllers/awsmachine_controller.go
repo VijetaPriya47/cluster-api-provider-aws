@@ -447,7 +447,7 @@ func (r *AWSMachineReconciler) reconcileDelete(ctx context.Context, machineScope
 		// Release an Elastic IP when the machine has public IP Address (EIP) with a cluster-wide config
 		// to consume from BYO IPv4 Pool.
 		if machineScope.GetElasticIPPool() != nil {
-			if err := ec2Service.ReleaseElasticIP(instance.ID); err != nil {
+			if err := ec2Service.ReleaseElasticIP(ctx, instance.ID); err != nil {
 				machineScope.Error(err, "failed to release elastic IP address")
 				return ctrl.Result{}, err
 			}
@@ -581,7 +581,7 @@ func (r *AWSMachineReconciler) reconcileNormal(ctx context.Context, machineScope
 	// The CreateInstance() is enforcing to not assign public IP address when PublicIP is set with
 	// BYOIpv4 Pool, preventing a duplicated EIP creation.
 	if pool := machineScope.GetElasticIPPool(); pool != nil {
-		requeue, err := ec2svc.ReconcileElasticIPFromPublicPool(pool, instance)
+		requeue, err := ec2svc.ReconcileElasticIPFromPublicPool(ctx, pool, instance)
 		if err != nil {
 			machineScope.Error(err, "Failed to reconcile BYO Public IPv4")
 			return ctrl.Result{}, err

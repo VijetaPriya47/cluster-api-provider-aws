@@ -40,10 +40,10 @@ import (
 	v1beta1conditions "sigs.k8s.io/cluster-api/util/deprecated/v1beta1/conditions"
 )
 
-func (s *Service) reconcileNatGateways() error {
+func (s *Service) reconcileNatGateways(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping NAT gateway reconcile in unmanaged mode")
-		_, err := s.updateNatGatewayIPs(s.scope.TagUnmanagedNetworkResources())
+		_, err := s.updateNatGatewayIPs(ctx, s.scope.TagUnmanagedNetworkResources())
 		if err != nil {
 			return err
 		}
@@ -72,7 +72,7 @@ func (s *Service) reconcileNatGateways() error {
 		return nil
 	}
 
-	subnetIDs, err := s.updateNatGatewayIPs(true)
+	subnetIDs, err := s.updateNatGatewayIPs(ctx, true)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (s *Service) reconcileNatGateways() error {
 				return errors.Wrap(err, "failed to patch conditions")
 			}
 		}
-		ngws, err := s.createNatGateways(subnetIDs)
+		ngws, err := s.createNatGateways(ctx, subnetIDs)
 
 		subnets := s.scope.Subnets()
 		defer func() {
@@ -106,8 +106,8 @@ func (s *Service) reconcileNatGateways() error {
 	return nil
 }
 
-func (s *Service) updateNatGatewayIPs(updateTags bool) ([]string, error) {
-	existing, err := s.describeNatGatewaysBySubnet()
+func (s *Service) updateNatGatewayIPs(ctx context.Context, updateTags bool) ([]string, error) {
+	existing, err := s.describeNatGatewaysBySubnet(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (s *Service) updateNatGatewayIPs(updateTags bool) ([]string, error) {
 	return subnetIDs, nil
 }
 
-func (s *Service) deleteNatGateways() error {
+func (s *Service) deleteNatGateways(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping NAT gateway deletion in unmanaged mode")
 		return nil
@@ -181,7 +181,7 @@ func (s *Service) deleteNatGateways() error {
 		return nil
 	}
 
-	existing, err := s.describeNatGatewaysBySubnet()
+	existing, err := s.describeNatGatewaysBySubnet(ctx)
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func (s *Service) deleteNatGateways() error {
 
 	for _, ngID := range ngIDs {
 		go func(c chan error, ngID types.NatGateway) {
-			err := s.deleteNatGateway(*ngID.NatGatewayId)
+			err := s.deleteNatGateway(ctx, *ngID.NatGatewayId)
 			c <- err
 		}(c, ngID)
 	}
@@ -217,7 +217,7 @@ func (s *Service) deleteNatGateways() error {
 	return kerrors.NewAggregate(errs)
 }
 
-func (s *Service) describeNatGatewaysBySubnet() (map[string]types.NatGateway, error) {
+func (s *Service) describeNatGatewaysBySubnet(ctx context.Context) (map[string]types.NatGateway, error) {
 	describeNatGatewayInput := &ec2.DescribeNatGatewaysInput{
 		Filter: []types.Filter{
 			filter.EC2.VPC(s.scope.VPC().ID),
@@ -229,7 +229,7 @@ func (s *Service) describeNatGatewaysBySubnet() (map[string]types.NatGateway, er
 
 	paginator := ec2.NewDescribeNatGatewaysPaginator(s.EC2Client, describeNatGatewayInput)
 	for paginator.HasMorePages() {
-		output, err := paginator.NextPage(context.TODO())
+		output, err := paginator.NextPage(ctx)
 		if err != nil {
 			record.Eventf(s.scope.InfraCluster(), "FailedDescribeNATGateways", "Failed to describe NAT gateways with VPC ID %q: %v", s.scope.VPC().ID, err)
 			return nil, errors.Wrapf(err, "failed to describe NAT gateways with VPC ID %q", s.scope.VPC().ID)
@@ -255,8 +255,8 @@ func (s *Service) getNatGatewayTagParams(id string) infrav1.BuildParams {
 	}
 }
 
-func (s *Service) createNatGateways(subnetIDs []string) (natgateways []*types.NatGateway, err error) {
-	eips, err := s.getOrAllocateAddresses(len(subnetIDs), infrav1.CommonRoleTagValue, s.scope.VPC().GetElasticIPPool())
+func (s *Service) createNatGateways(ctx context.Context, subnetIDs []string) (natgateways []*types.NatGateway, err error) {
+	eips, err := s.getOrAllocateAddresses(ctx, len(subnetIDs), infrav1.CommonRoleTagValue, s.scope.VPC().GetElasticIPPool())
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to create one or more IP addresses for NAT gateways")
 	}
@@ -268,7 +268,7 @@ func (s *Service) createNatGateways(subnetIDs []string) (natgateways []*types.Na
 
 	for i, sn := range subnetIDs {
 		go func(c chan ngwCreation, subnetID, ip string) {
-			ngw, err := s.createNatGateway(subnetID, ip)
+			ngw, err := s.createNatGateway(ctx, subnetID, ip)
 			c <- ngwCreation{natGateway: ngw, error: err}
 		}(c, sn, eips[i])
 	}
@@ -283,12 +283,12 @@ func (s *Service) createNatGateways(subnetIDs []string) (natgateways []*types.Na
 	return natgateways, nil
 }
 
-func (s *Service) createNatGateway(subnetID, ip string) (*types.NatGateway, error) {
+func (s *Service) createNatGateway(ctx context.Context, subnetID, ip string) (*types.NatGateway, error) {
 	var out *ec2.CreateNatGatewayOutput
 	var err error
 
 	if err := wait.WaitForWithRetryable(wait.NewBackoff(), func() (bool, error) {
-		if out, err = s.EC2Client.CreateNatGateway(context.TODO(), &ec2.CreateNatGatewayInput{
+		if out, err = s.EC2Client.CreateNatGateway(ctx, &ec2.CreateNatGatewayInput{
 			SubnetId:          aws.String(subnetID),
 			AllocationId:      aws.String(ip),
 			TagSpecifications: []types.TagSpecification{tags.BuildParamsToTagSpecification(types.ResourceTypeNatgateway, s.getNatGatewayTagParams(services.TemporaryResourceID))},
@@ -302,7 +302,7 @@ func (s *Service) createNatGateway(subnetID, ip string) (*types.NatGateway, erro
 	}
 	record.Eventf(s.scope.InfraCluster(), "SuccessfulCreateNATGateway", "Created new NAT Gateway %q", *out.NatGateway.NatGatewayId)
 
-	if err := ec2.NewNatGatewayAvailableWaiter(s.EC2Client).Wait(context.TODO(), &ec2.DescribeNatGatewaysInput{
+	if err := ec2.NewNatGatewayAvailableWaiter(s.EC2Client).Wait(ctx, &ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []string{aws.ToString(out.NatGateway.NatGatewayId)},
 	}, time.Minute*2); err != nil {
 		return nil, errors.Wrapf(err, "failed to wait for nat gateway %q in subnet %q", *out.NatGateway.NatGatewayId, subnetID)
@@ -312,8 +312,8 @@ func (s *Service) createNatGateway(subnetID, ip string) (*types.NatGateway, erro
 	return out.NatGateway, nil
 }
 
-func (s *Service) deleteNatGateway(id string) error {
-	_, err := s.EC2Client.DeleteNatGateway(context.TODO(), &ec2.DeleteNatGatewayInput{
+func (s *Service) deleteNatGateway(ctx context.Context, id string) error {
+	_, err := s.EC2Client.DeleteNatGateway(ctx, &ec2.DeleteNatGatewayInput{
 		NatGatewayId: aws.String(id),
 	})
 	if err != nil {
@@ -328,7 +328,7 @@ func (s *Service) deleteNatGateway(id string) error {
 	}
 
 	if err := wait.WaitForWithRetryable(wait.NewBackoff(), func() (done bool, err error) {
-		out, err := s.EC2Client.DescribeNatGateways(context.TODO(), describeInput)
+		out, err := s.EC2Client.DescribeNatGateways(ctx, describeInput)
 		if err != nil {
 			return false, err
 		}

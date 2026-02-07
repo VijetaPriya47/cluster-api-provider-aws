@@ -17,7 +17,7 @@ func getElasticIPRoleName(instanceID string) string {
 }
 
 // ReconcileElasticIPFromPublicPool reconciles the elastic IP from a custom Public IPv4 Pool.
-func (s *Service) ReconcileElasticIPFromPublicPool(pool *infrav1.ElasticIPPool, instance *infrav1.Instance) (bool, error) {
+func (s *Service) ReconcileElasticIPFromPublicPool(ctx context.Context, pool *infrav1.ElasticIPPool, instance *infrav1.Instance) (bool, error) {
 	shouldRequeue := true
 	// Should not happen
 	if pool == nil {
@@ -36,7 +36,7 @@ func (s *Service) ReconcileElasticIPFromPublicPool(pool *infrav1.ElasticIPPool, 
 	shouldRequeue = false
 
 	// Prevent running association every reconciliation when it is already done.
-	addrs, err := s.netService.GetAddresses(getElasticIPRoleName(instance.ID))
+	addrs, err := s.netService.GetAddresses(ctx, getElasticIPRoleName(instance.ID))
 	if err != nil {
 		s.scope.Error(err, "error checking if addresses exists for Elastic IP Pool to machine", "eip-role", getElasticIPRoleName(instance.ID))
 		return shouldRequeue, err
@@ -55,20 +55,20 @@ func (s *Service) ReconcileElasticIPFromPublicPool(pool *infrav1.ElasticIPPool, 
 
 	// Get existing, or allocate an EIP, then Associate to the machine.
 	// Should requeue if any error is returned in the process.
-	if err := s.getAndAssociateAddressesToInstance(pool, getElasticIPRoleName(instance.ID), instance.ID); err != nil {
+	if err := s.getAndAssociateAddressesToInstance(ctx, pool, getElasticIPRoleName(instance.ID), instance.ID); err != nil {
 		return true, fmt.Errorf("failed to reconcile Elastic IP: %w", err)
 	}
 	return shouldRequeue, nil
 }
 
 // ReleaseElasticIP releases a specific Elastic IP based on the instance role.
-func (s *Service) ReleaseElasticIP(instanceID string) error {
-	return s.netService.ReleaseAddressByRole(getElasticIPRoleName(instanceID))
+func (s *Service) ReleaseElasticIP(ctx context.Context, instanceID string) error {
+	return s.netService.ReleaseAddressByRole(ctx, getElasticIPRoleName(instanceID))
 }
 
 // getAndAssociateAddressesToInstance find or create an EIP from an instance and role.
-func (s *Service) getAndAssociateAddressesToInstance(pool *infrav1.ElasticIPPool, role string, instance string) (err error) {
-	eips, err := s.netService.GetOrAllocateAddresses(pool, 1, role)
+func (s *Service) getAndAssociateAddressesToInstance(ctx context.Context, pool *infrav1.ElasticIPPool, role string, instance string) (err error) {
+	eips, err := s.netService.GetOrAllocateAddresses(ctx, pool, 1, role)
 	if err != nil {
 		record.Warnf(s.scope.InfraCluster(), "FailedAllocateEIP", "Failed to get Elastic IP for %q: %v", role, err)
 		return err
@@ -77,7 +77,7 @@ func (s *Service) getAndAssociateAddressesToInstance(pool *infrav1.ElasticIPPool
 		record.Warnf(s.scope.InfraCluster(), "FailedAllocateEIP", "Failed to allocate Elastic IP for %q: %v", role, err)
 		return fmt.Errorf("unexpected number of Elastic IP to instance %q, got %d: %w", instance, len(eips), err)
 	}
-	_, err = s.EC2Client.AssociateAddress(context.TODO(), &ec2.AssociateAddressInput{
+	_, err = s.EC2Client.AssociateAddress(ctx, &ec2.AssociateAddressInput{
 		InstanceId:   aws.String(instance),
 		AllocationId: aws.String(eips[0]),
 	})

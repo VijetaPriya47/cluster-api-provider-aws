@@ -1,6 +1,7 @@
 package elb
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -16,7 +17,7 @@ func getElasticIPRoleName() string {
 
 // allocatePublicIpv4AddressFromByoIPPool claims for Elastic IPs from an user-defined public IPv4 pool,
 // allocating it to the NetworkMapping structure from an Network Load Balancer.
-func (s *Service) allocatePublicIpv4AddressFromByoIPPool(input *elbv2.CreateLoadBalancerInput) error {
+func (s *Service) allocatePublicIpv4AddressFromByoIPPool(ctx context.Context, input *elbv2.CreateLoadBalancerInput) error {
 	// Custom Public IPv4 Pool isn't set.
 	if s.scope.VPC().GetPublicIpv4Pool() == nil {
 		return nil
@@ -32,7 +33,7 @@ func (s *Service) allocatePublicIpv4AddressFromByoIPPool(input *elbv2.CreateLoad
 		return fmt.Errorf("PublicIpv4Pool is mutually exclusive with SubnetMappings")
 	}
 
-	eips, err := s.netService.GetOrAllocateAddresses(s.scope.VPC().GetElasticIPPool(), len(input.Subnets), getElasticIPRoleName())
+	eips, err := s.netService.GetOrAllocateAddresses(ctx, s.scope.VPC().GetElasticIPPool(), len(input.Subnets), getElasticIPRoleName())
 	if err != nil {
 		return fmt.Errorf("failed to allocate address from Public IPv4 Pool %q to role %s: %w", *s.scope.VPC().GetPublicIpv4Pool(), getElasticIPRoleName(), err)
 	}

@@ -457,7 +457,7 @@ func (s *Service) createLB(ctx context.Context, spec *infrav1.LoadBalancer, lbSp
 	// set in the VpcSpec.ElasticIPPool.PublicIPv4Pool to allow Elastic IP be consumed from
 	// public ip address of user-provided CIDR blocks.
 	if spec.Scheme == infrav1.ELBSchemeInternetFacing {
-		if err := s.allocatePublicIpv4AddressFromByoIPPool(input); err != nil {
+		if err := s.allocatePublicIpv4AddressFromByoIPPool(ctx, input); err != nil {
 			return nil, fmt.Errorf("failed to allocate addresses to load balancer: %w", err)
 		}
 	}

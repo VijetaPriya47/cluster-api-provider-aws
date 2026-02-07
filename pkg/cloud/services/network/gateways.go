@@ -36,7 +36,7 @@ import (
 	v1beta1conditions "sigs.k8s.io/cluster-api/util/deprecated/v1beta1/conditions"
 )
 
-func (s *Service) reconcileInternetGateways() error {
+func (s *Service) reconcileInternetGateways(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping internet gateways reconcile in unmanaged mode")
 		return nil
@@ -44,13 +44,13 @@ func (s *Service) reconcileInternetGateways() error {
 
 	s.scope.Debug("Reconciling internet gateways")
 
-	igs, err := s.describeVpcInternetGateways()
+	igs, err := s.describeVpcInternetGateways(ctx)
 	if awserrors.IsNotFound(err) {
 		if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 			return errors.Errorf("failed to validate network: no internet gateways found in VPC %q", s.scope.VPC().ID)
 		}
 
-		ig, err := s.createInternetGateway()
+		ig, err := s.createInternetGateway(ctx)
 		if err != nil {
 			return err
 		}
@@ -78,13 +78,13 @@ func (s *Service) reconcileInternetGateways() error {
 	return nil
 }
 
-func (s *Service) deleteInternetGateways() error {
+func (s *Service) deleteInternetGateways(ctx context.Context) error {
 	if s.scope.VPC().IsUnmanaged(s.scope.Name()) {
 		s.scope.Trace("Skipping internet gateway deletion in unmanaged mode")
 		return nil
 	}
 
-	igs, err := s.describeVpcInternetGateways()
+	igs, err := s.describeVpcInternetGateways(ctx)
 	if awserrors.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -97,7 +97,7 @@ func (s *Service) deleteInternetGateways() error {
 			VpcId:             aws.String(s.scope.VPC().ID),
 		}
 
-		if _, err := s.EC2Client.DetachInternetGateway(context.TODO(), detachReq); err != nil {
+		if _, err := s.EC2Client.DetachInternetGateway(ctx, detachReq); err != nil {
 			record.Warnf(s.scope.InfraCluster(), "FailedDetachInternetGateway", "Failed to detach Internet Gateway %q from VPC %q: %v", *ig.InternetGatewayId, s.scope.VPC().ID, err)
 			return errors.Wrapf(err, "failed to detach internet gateway %q", *ig.InternetGatewayId)
 		}
@@ -109,7 +109,7 @@ func (s *Service) deleteInternetGateways() error {
 			InternetGatewayId: ig.InternetGatewayId,
 		}
 
-		if _, err = s.EC2Client.DeleteInternetGateway(context.TODO(), deleteReq); err != nil {
+		if _, err = s.EC2Client.DeleteInternetGateway(ctx, deleteReq); err != nil {
 			record.Warnf(s.scope.InfraCluster(), "FailedDeleteInternetGateway", "Failed to delete Internet Gateway %q previously attached to VPC %q: %v", *ig.InternetGatewayId, s.scope.VPC().ID, err)
 			return errors.Wrapf(err, "failed to delete internet gateway %q", *ig.InternetGatewayId)
 		}
@@ -121,8 +121,8 @@ func (s *Service) deleteInternetGateways() error {
 	return nil
 }
 
-func (s *Service) createInternetGateway() (*types.InternetGateway, error) {
-	ig, err := s.EC2Client.CreateInternetGateway(context.TODO(), &ec2.CreateInternetGatewayInput{
+func (s *Service) createInternetGateway(ctx context.Context) (*types.InternetGateway, error) {
+	ig, err := s.EC2Client.CreateInternetGateway(ctx, &ec2.CreateInternetGatewayInput{
 		TagSpecifications: []types.TagSpecification{
 			tags.BuildParamsToTagSpecification(types.ResourceTypeInternetGateway, s.getGatewayTagParams(services.TemporaryResourceID)),
 		},
@@ -135,7 +135,7 @@ func (s *Service) createInternetGateway() (*types.InternetGateway, error) {
 	s.scope.Info("Created Internet gateway for VPC", "internet-gateway-id", *ig.InternetGateway.InternetGatewayId, "vpc-id", s.scope.VPC().ID)
 
 	if err := wait.WaitForWithRetryable(wait.NewBackoff(), func() (bool, error) {
-		if _, err := s.EC2Client.AttachInternetGateway(context.TODO(), &ec2.AttachInternetGatewayInput{
+		if _, err := s.EC2Client.AttachInternetGateway(ctx, &ec2.AttachInternetGatewayInput{
 			InternetGatewayId: ig.InternetGateway.InternetGatewayId,
 			VpcId:             aws.String(s.scope.VPC().ID),
 		}); err != nil {
@@ -152,8 +152,8 @@ func (s *Service) createInternetGateway() (*types.InternetGateway, error) {
 	return ig.InternetGateway, nil
 }
 
-func (s *Service) describeVpcInternetGateways() ([]types.InternetGateway, error) {
-	out, err := s.EC2Client.DescribeInternetGateways(context.TODO(), &ec2.DescribeInternetGatewaysInput{
+func (s *Service) describeVpcInternetGateways(ctx context.Context) ([]types.InternetGateway, error) {
+	out, err := s.EC2Client.DescribeInternetGateways(ctx, &ec2.DescribeInternetGatewaysInput{
 		Filters: []types.Filter{
 			filter.EC2.VPCAttachment(s.scope.VPC().ID),
 		},
